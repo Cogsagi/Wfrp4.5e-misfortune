@@ -1,0 +1,12 @@
+{
+  "WFRP4E-MISFORTUNE": {
+    "Settings": {
+      "ShowPlayers": "Show Tracker to Players",
+      "ShowPlayersHint": "When enabled, players can see how many Misfortune points the GM has accumulated. Recommended for maximum dread.",
+      "TriggerValue": "Trigger Roll Value",
+      "TriggerValueHint": "The d100 result that triggers Misfortune accumulation. Default is 88.",
+      "ChatFlavor": "Show Dramatic Chat Messages",
+      "ChatFlavorHint": "Post thematic chat messages when Misfortune is earned or spent."
+    }
+  }
+}

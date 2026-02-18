@@ -2,70 +2,48 @@
 
 ## Project Overview
 
-fvtt-prototypes is a Foundry Virtual Tabletop (VTT) module for prototyping custom functionality. Built with JavaScript (ES6+) using ES modules, with optional TypeScript support via Foundry VTT Types and Vite for development builds.
+wfrp4e-misfortune is a Foundry Virtual Tabletop (VTT) module that implements a homebrew GM metacurrency for Warhammer Fantasy Roleplay 4th Edition. When a non-GM player rolls an 88 on a d100 test, the GM gains a Misfortune point that can be spent to reroll any NPC test.
 
 ## Tech Stack
 
-- **Language**: JavaScript (ES6+), optional TypeScript via JSDoc + `@league-of-foundry-developers/foundry-vtt-types`
-- **Platform**: Foundry VTT V12+ (module)
-- **Build Tool**: Vite (optional — symlink mode for pure JS)
-- **Architecture**: Hooks API, Application V2, Module API
+- **Language**: JavaScript (ES Modules)
+- **Platform**: Foundry VTT V13+ (module)
+- **Game System**: WFRP4e v9.0.0+
 
 ## Documentation Index
 
 | File | Purpose |
 |------|---------|
-| `.context/substrate.md` | **Start here.** Project overview, navigation, AI usage patterns. |
-| `.context/architecture/overview.md` | System architecture with Mermaid diagrams, lifecycle hooks. |
-| `.context/architecture/dependencies.md` | Dependency management, Vite config, Foundry VTT Types. |
-| `.context/architecture/patterns.md` | Code organization, error handling, design patterns. |
-| `.context/api/endpoints.md` | Foundry Document API, Settings API, Socket API, Hook API. |
-| `.context/api/headers.md` | Module manifest (`module.json`) configuration and fields. |
-| `.context/api/examples.md` | Practical integration examples: settings, sheets, AppV2, sockets. |
-| `.context/database/schema.md` | Foundry document schema, ERD diagrams, flag storage design. |
-| `.context/database/models.md` | Custom DataModel definitions, validation, schema fields. |
-| `.context/database/migrations.md` | Version-based data migration strategy and runner. |
-| `.context/auth/overview.md` | Foundry permission model: roles, ownership, access control. |
-| `.context/auth/integration.md` | Permission checks in UI, data, and socket layers. |
-| `.context/auth/security.md` | Security model, threat mitigation, defensive coding. |
-| `.context/ui/overview.md` | Application V2 framework, design tokens, CSS architecture. |
-| `.context/ui/patterns.md` | Forms, dialogs, sheet injection, canvas interaction. |
-| `.context/seo/overview.md` | Module discoverability, manifest metadata, publishing. |
-| `.context/guidelines.md` | Git workflow, coding standards, testing, deployment. |
+| `.context/substrate.md` | **Start here.** Project overview, key concepts, and conventions. |
+| `.context/architecture/overview.md` | Module lifecycle, directory layout, and component patterns. |
 
 ## Project Structure
 
 ```
 /
-├── .context/                    # Structured project documentation
-│   ├── substrate.md             # Entry point — project overview
-│   ├── guidelines.md            # Development workflow & standards
-│   ├── architecture/
-│   │   ├── overview.md          # System architecture
-│   │   ├── dependencies.md      # Dependencies & build config
-│   │   └── patterns.md          # Code patterns & error handling
-│   ├── api/
-│   │   ├── endpoints.md         # Foundry API reference
-│   │   ├── headers.md           # Module manifest reference
-│   │   └── examples.md          # Integration examples
-│   ├── database/
-│   │   ├── schema.md            # Document schema & ERDs
-│   │   ├── models.md            # DataModel definitions
-│   │   └── migrations.md        # Migration strategy
-│   ├── auth/
-│   │   ├── overview.md          # Permission model
-│   │   ├── integration.md       # Permission implementation
-│   │   └── security.md          # Security & threat model
-│   ├── ui/
-│   │   ├── overview.md          # Component architecture
-│   │   └── patterns.md          # UI implementation patterns
-│   └── seo/
-│       └── overview.md          # Module discoverability
-├── module.json                  # Foundry VTT module manifest
-├── scripts/                     # JavaScript source files
-├── styles/                      # CSS stylesheets
-├── templates/                   # Handlebars/HTML templates
-├── languages/                   # Localization files
+├── .context/                  # Structured project documentation
+│   ├── substrate.md           # Entry point — project overview
+│   └── architecture/
+│       └── overview.md        # Architecture and patterns
+├── module.json                # Foundry VTT module manifest
+├── scripts/
+│   ├── main.js                # Entry point — hook registration and API
+│   ├── constants.js           # Module ID, setting keys, thematic messages
+│   ├── settings.js            # Game settings registration
+│   ├── misfortune-pool.js     # Pool management (get, add, spend, reset)
+│   ├── chat-commands.js       # /misfortune and /mf commands
+│   ├── socket.js              # Cross-client socket sync
+│   ├── hooks/
+│   │   └── roll-hooks.js      # WFRP4e roll test listeners (88 detection)
+│   └── apps/
+│       ├── tracker.js         # Floating tracker widget
+│       └── log-viewer.js      # Event log Application class
+├── styles/
+│   └── module.css             # Grimdark-themed styles
+├── templates/
+│   └── log-viewer.hbs         # Handlebars template for event log
+├── languages/
+│   └── en.json                # English localization strings
 └── CLAUDE.md
 ```
 
@@ -76,46 +54,41 @@ fvtt-prototypes is a Foundry Virtual Tabletop (VTT) module for prototyping custo
 - `module.json` is the module manifest — it declares the module ID, compatibility, scripts, styles, and dependencies.
 - Scripts are loaded by Foundry via the manifest; no build step is required for plain JS.
 - Use Foundry's Hook system (`Hooks.on`, `Hooks.once`) to integrate with the application lifecycle.
+- The WFRP4e system provides roll hooks (`wfrp4e:rollTest`, etc.) that this module listens to.
 
 ### Code Conventions
 
 - Use ES module syntax (`import`/`export`).
 - Follow Foundry VTT API patterns and naming conventions.
-- Prefix CSS classes and hook namespaces with the module ID to avoid collisions.
-- See `.context/architecture/patterns.md` for detailed coding patterns.
-- See `.context/guidelines.md` for git workflow and commit conventions.
+- Prefix CSS classes with the module ID: `.wfrp4e-misfortune--element`.
+- All shared constants live in `scripts/constants.js`.
+- Only the GM client processes roll hooks to prevent duplicate triggers.
 
 ## Instructions for Claude Code
 
 ### Before Generating Code
-1. Read `.context/substrate.md` for project identity and conventions.
-2. Read relevant `.context/` domain files for the feature area.
-3. Read any relevant existing source files before making changes.
-4. Follow patterns established in `.context/architecture/patterns.md`.
-5. Respect Foundry VTT API conventions and lifecycle hooks.
+1. Read any relevant existing source files before making changes.
+2. Follow patterns already established in the codebase.
+3. Respect Foundry VTT API conventions and lifecycle hooks.
 
 ### Do Not
 - Generate code without reading relevant source files first.
 - Create new architectural patterns without documenting them.
 - Ignore Foundry VTT API conventions or module namespacing.
 - Assume implementation details not documented in the codebase.
-- Write to `document.system` — use flags instead (see `.context/database/schema.md`).
-- Skip permission checks — see `.context/auth/integration.md`.
 
 ### When Making Changes
-- Keep module ID prefixes consistent across CSS classes and hook namespaces.
+- Keep `wfrp4e-misfortune--` prefix consistent across CSS classes.
 - Ensure `module.json` stays in sync with any new scripts, styles, or dependencies.
-- Wrap hook callbacks in try-catch (see `.context/architecture/patterns.md`).
-- Validate permissions at UI and data layers (see `.context/auth/integration.md`).
-- Test changes manually in a local Foundry VTT instance.
+- Update `scripts/constants.js` when adding new setting keys or message arrays.
+- Test changes manually in a local Foundry VTT instance with the WFRP4e system.
 
 ## Testing
 
-No automated test framework is configured yet. Follow the manual testing protocol in `.context/guidelines.md`. Test manually by loading the module in a local Foundry VTT instance.
+No automated test framework is configured. Test manually by loading the module in a local Foundry VTT instance with the WFRP4e system active.
 
 ## Useful Links
 
 - [Foundry VTT API Documentation](https://foundryvtt.com/api/)
 - [Foundry VTT Module Development Guide](https://foundryvtt.wiki/en/development/guides/getting-started)
-- [Foundry VTT Types](https://github.com/League-of-Foundry-Developers/foundry-vtt-types)
-- [Vite Documentation](https://vitejs.dev/)
+- [WFRP4e System Repository](https://github.com/moo-man/WFRP4e-FoundryVTT)
