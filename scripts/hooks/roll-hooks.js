@@ -25,7 +25,7 @@ export function registerRollHooks() {
   }
 }
 
-function handleRollTest(test, cardOptions) {
+async function handleRollTest(test, cardOptions) {
   // Only process on GM client to avoid duplicates
   if (!game.user.isGM) return;
 
@@ -68,7 +68,7 @@ function handleRollTest(test, cardOptions) {
   // ========== MISFORTUNE TRIGGERED! ==========
   console.log(`${MODULE_ID} | Misfortune triggered! ${rollingUser.name} rolled ${rollValue}`);
 
-  addMisfortune(rollingUser.name, rollValue);
+  await addMisfortune(rollingUser.name, rollValue);
 
   // Post dramatic chat message
   if (game.settings.get(MODULE_ID, SETTING_CHAT_FLAVOR)) {
